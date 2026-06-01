@@ -1,18 +1,18 @@
 # 😊 Real-Time Emotion Detector
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python&logoColor=white)
-![DeepFace](https://img.shields.io/badge/DeepFace-0.0.80+-red?logo=python&logoColor=white)
+![HuggingFace](https://img.shields.io/badge/HuggingFace-Transformers-yellow?logo=huggingface&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red?logo=pytorch&logoColor=white)
 ![OpenCV](https://img.shields.io/badge/OpenCV-4.8+-green?logo=opencv&logoColor=white)
-![TensorFlow](https://img.shields.io/badge/TensorFlow-2.13+-orange?logo=tensorflow&logoColor=white)
 ![Level](https://img.shields.io/badge/Level-Advanced-purple)
 
-An advanced computer vision project that performs **real-time facial emotion recognition** from a live webcam feed using **DeepFace** and **OpenCV**. Detects 7 emotions with color-coded overlays, probability bars, and frame smoothing for stable output.
+An advanced computer vision project that performs **real-time facial emotion recognition** from a live webcam feed using a **HuggingFace Vision Transformer** and **OpenCV**. Detects 7 emotions with color-coded overlays, probability bars, and frame smoothing for stable output.
 
 ---
 
 ## Overview
 
-Uses a pre-trained deep learning model via the DeepFace library to classify facial expressions in real time. Processes each frame from the webcam, smooths predictions over a 5-frame window, and overlays results directly on the video feed.
+Uses the pre-trained `trpakov/vit-face-expression` ViT model via HuggingFace Transformers (PyTorch backend) to classify facial expressions in real time. OpenCV Haar Cascade handles face detection. Predictions are smoothed over a 5-frame window and overlaid directly on the video feed.
 
 ---
 
@@ -46,9 +46,10 @@ Uses a pre-trained deep learning model via the DeepFace library to classify faci
 | Tool | Purpose |
 |------|---------|
 | Python 3.8+ | Core language |
-| DeepFace | Pre-trained emotion recognition model |
-| OpenCV | Webcam capture, frame rendering, overlays |
-| TensorFlow | Deep learning backend for DeepFace |
+| HuggingFace Transformers | Pre-trained ViT emotion model |
+| PyTorch | Deep learning backend |
+| OpenCV | Webcam capture, face detection, overlays |
+| Pillow | Image format conversion |
 | NumPy | Frame processing and array operations |
 
 ---
@@ -77,7 +78,7 @@ cd realtime-emotion-detector
 pip install -r requirements.txt
 ```
 
-> **Note:** TensorFlow and DeepFace are large packages (~500MB). Installation may take a few minutes.
+> **Note:** The HuggingFace model (`trpakov/vit-face-expression`) is ~343MB and downloads automatically on first run.
 
 ### 3. Run webcam mode
 ```bash
@@ -96,7 +97,7 @@ python detect_emotions.py path/to/image.jpg
 | Key | Action |
 |-----|--------|
 | `Q` | Quit the application |
-| `S` | Save a screenshot to `screenshots/` |
+| `S` | Save a screenshot |
 
 ---
 
@@ -106,7 +107,10 @@ python detect_emotions.py path/to/image.jpg
 Webcam Frame
      │
      ▼
-DeepFace.analyze()          ← Pre-trained CNN model (FER+ dataset)
+OpenCV Haar Cascade         ← Face detection
+     │
+     ▼
+ViT (trpakov/vit-face-expression)  ← HuggingFace image-classification pipeline
      │
      ▼
 Emotion Probabilities        ← 7 classes with confidence scores
@@ -127,8 +131,10 @@ Display + FPS Counter
 
 - A working **webcam** (built-in or USB)
 - Python 3.8 or higher
-- ~2GB free disk space (TensorFlow + DeepFace models)
+- ~500MB free disk space (PyTorch + ViT model weights)
 - For best results: good lighting and face clearly visible
+
+> **macOS users:** Grant Terminal camera access in **System Settings → Privacy & Security → Camera**
 
 ---
 
@@ -140,7 +146,7 @@ Display + FPS Counter
 | Intel i5/i7 (CPU only) | 8–15 FPS |
 | NVIDIA GPU (CUDA) | 25–40 FPS |
 
-> DeepFace analyzes every 3rd frame to maintain smooth video on CPU.
+> Emotion analysis runs every 5th frame to maintain smooth video on CPU.
 
 ---
 
@@ -152,14 +158,13 @@ Display + FPS Counter
 # Edit detect_emotions.py: cv2.VideoCapture(0) → cv2.VideoCapture(1)
 ```
 
-**TensorFlow installation error on Apple Silicon:**
-```bash
-pip install tensorflow-macos
-pip install tensorflow-metal  # GPU acceleration
+**macOS camera permission denied:**
+```
+System Settings → Privacy & Security → Camera → enable Terminal
 ```
 
-**DeepFace model download:**  
-On first run, DeepFace automatically downloads the required model weights (~100MB). Ensure you have an internet connection.
+**First run slow:**  
+The ViT model (~343MB) downloads from HuggingFace on first run. Subsequent runs load from cache instantly.
 
 ---
 
